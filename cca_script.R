@@ -1,4 +1,5 @@
-# Alternating CCA Scheme
+# In-built R function
+cancor(X, Y, xcenter = TRUE, ycenter = TRUE)
 
 # CCA solver for matrices X, Y with n rows and p, q columns by direct approach
 # requires inverting Sxx and Syy
@@ -31,13 +32,12 @@ cca_solver <- function(X, Y, k, n){
 
 # Alternating approach to CCA for matrices X, Y with n rows and p, q columns
 # matrices A, B have to be initialized separately
-
 alternating_cca_solver <- function(X, Y, k, n, A, B, tol = 1e-6, max.iter = 100){
   Xc <- scale(X, center = TRUE, scale = FALSE)
   Yc <- scale(Y, center = TRUE, scale = FALSE)
   
-  Sxx <- crossprod(Xc) / (n - 1)
-  Syy <- crossprod(Yc) / (n - 1)
+  Sxx <- crossprod(Xc)/(n - 1)
+  Syy <- crossprod(Yc)/(n - 1)
   
   for (iter in 1:max_iter) {
     # --- Update A given B ---
@@ -45,14 +45,14 @@ alternating_cca_solver <- function(X, Y, k, n, A, B, tol = 1e-6, max.iter = 100)
     A <- solve(Sxx, crossprod(Xc, Yc) %*% B)
     # Normalize A so that A' Sxx A = I
     norm_A <- sqrt(diag(t(A) %*% Sxx %*% A))
-    A <- A %*% diag(1 / norm_A)
+    A <- A %*% diag(1/norm_A)
     
     # --- Update B given A ---
     # Solve least squares: B = (Y'Y)^{-1} Y'X A
     B <- solve(Syy, crossprod(Yc, Xc) %*% A)
     # Normalize B so that B' Syy B = I
     norm_B <- sqrt(diag(t(B) %*% Syy %*% B))
-    B <- B %*% diag(1 / norm_B)
+    B <- B %*% diag(1/norm_B)
     
     # Check convergence (using the maximum change in A)
     if (max(abs(A - A_old)) < tol) break
@@ -61,8 +61,8 @@ alternating_cca_solver <- function(X, Y, k, n, A, B, tol = 1e-6, max.iter = 100)
 }
 
 
-
-cca_alternating <- function(X, Y, k, tol = 1e-6, max_iter = 100) {
+# Alternating CCA Scheme
+cca_alternating <- function(X, Y, k, tol = 1e-6, max_iter = 1000) {
   # Center the data
   Xc <- scale(X, center = TRUE, scale = FALSE)
   Yc <- scale(Y, center = TRUE, scale = FALSE)
@@ -73,12 +73,12 @@ cca_alternating <- function(X, Y, k, tol = 1e-6, max_iter = 100) {
   q <- ncol(Yc)
   
   # Sample covariance matrices (using denominator n-1)
-  Sxx <- crossprod(Xc) / (n - 1)  # p x p
-  Syy <- crossprod(Yc) / (n - 1)  # q x q
+  Sxx <- crossprod(Xc)/(n - 1)  # p x p
+  Syy <- crossprod(Yc)/(n - 1)  # q x q
   
   # Initial B: a random q x k matrix with orthonormal columns
   set.seed(123)  # For reproducibility (optional)
-  B <- matrix(rnorm(q * k), nrow = q, ncol = k)
+  B <- matrix(rnorm(q*k), nrow = q, ncol = k)
   B <- qr.Q(qr(B))[, 1:k, drop = FALSE]
   
   # Initialize A for convergence check
@@ -90,7 +90,7 @@ cca_alternating <- function(X, Y, k, tol = 1e-6, max_iter = 100) {
     A <- solve(Sxx, crossprod(Xc, Yc) %*% B)
     # Normalize A so that A' Sxx A = I
     norm_A <- sqrt(diag(t(A) %*% Sxx %*% A))
-    A <- A %*% diag(1 / norm_A)
+    A <- A %*% diag(1/norm_A)
     
     # --- Update B given A ---
     # Solve least squares: B = (Y'Y)^{-1} Y'X A
@@ -117,13 +117,13 @@ cca_alternating <- function(X, Y, k, tol = 1e-6, max_iter = 100) {
               iterations = iter))
 }
 
-# Example usage:
 # Suppose X and Y are your data matrices and you want the top 2 canonical directions:
 # result <- cca_alternating(X, Y, 2)
 # print(result$canonical_correlations)
 
 
-# Includes lasso penalty
+                      
+# Includes lasso penalty, TBD
 sparse_cca <- function() {
   
 }
