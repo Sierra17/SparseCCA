@@ -1,2 +1,2 @@
 # SparseCCA
-Implementations of solvers for CCA with missing values
+Implementations of efficient solvers for CCA with missing values
